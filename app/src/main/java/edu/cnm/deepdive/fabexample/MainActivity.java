@@ -1,6 +1,9 @@
 package edu.cnm.deepdive.fabexample;
 
 import android.os.Bundle;
+import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,8 +12,41 @@ import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
+
+  private ListView myListview;
+
+  ArrayList<String> listItems = new ArrayList<String>();
+  ArrayAdapter<String> adapter;
+
+  View.OnClickListener undoOnClickListener = new OnClickListener() {
+    @Override
+    public void onClick(View view) {
+      listItems.remove(listItems.size() - 1);
+      adapter.notifyDataSetChanged();
+      Snackbar.make(view, "Item removed.", Snackbar.LENGTH_LONG)
+          .setAction("Action", null).show();
+    }
+  };
+
+  private void addListItem() {
+    SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss MM/dd/yyyy", Locale.US);
+    listItems.add(dateFormat.format(new Date()));
+    adapter.notifyDataSetChanged();
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+    myListview = findViewById(R.id.listView);
+    adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
+    myListview.setAdapter(adapter);
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -23,10 +59,12 @@ public class MainActivity extends AppCompatActivity {
     fab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-            .setAction("Action", null).show();
+        addListItem();
+        Snackbar.make(view, "Item added to list.", Snackbar.LENGTH_LONG)
+            .setAction("Undo", undoOnClickListener).show();
       }
     });
+
   }
 
   @Override
@@ -47,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     if (id == R.id.action_settings) {
       return true;
     }
-
     return super.onOptionsItemSelected(item);
   }
+
 }
